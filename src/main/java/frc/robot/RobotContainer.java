@@ -8,6 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.epilogue.Logged;
+import frc.robot.subsystems.RollerSubsystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,15 +23,21 @@ import edu.wpi.first.wpilibj2.command.Command;
 @Logged
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
+  private final DriveSubsystem driveSubsystem = new DriveSubsystem();
+
+  public final RollerSubsystem armRoller = new RollerSubsystem();
 
 
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final Joystick m_driverController =
-      new Joystick(OperatorConstants.DRIVER_CONTROLLER_PORT);
+  private final Joystick driverController =
+
+      new Joystick(Constants.OperatorConstants.DRIVER_CONTROLLER_PORT);
+
+    
+
 
   
 
@@ -40,6 +47,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
   }
+
 
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
@@ -51,14 +59,19 @@ public class RobotContainer {
     // controller. The Y axis of the controller is inverted so that pushing the
     // stick away from you (a negative value) drives the robot forwards (a positive
     // value)
-        m_driveSubsystem.setDefaultCommand(
-          m_driveSubsystem.driveArcade(
-              m_driveSubsystem, () -> -m_driverController.getRawAxis(0), () -> m_driverController.getRawAxis(1)));
+        driveSubsystem.setDefaultCommand(
+          driveSubsystem.driveArcade(
+              driveSubsystem, () -> -driverController.getRawAxis(0), () -> driverController.getRawAxis(1)));
 
-   
+
+   // RollerSubsystem
+    if (driverController.getRawButtonPressed(2)) {
+      armRoller.runRollerMotor(Constants.RollerConstants.rollerAlgaeInSpeed);
+    }
 
   }
 
+  
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
