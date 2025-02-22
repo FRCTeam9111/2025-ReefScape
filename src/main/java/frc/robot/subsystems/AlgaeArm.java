@@ -7,13 +7,26 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.Constants.ArmConstants;;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.subsystems.ArmRollerSubsystem.RollerState;;
 
-public class AlgaeArm {
+public class AlgaeArm extends SubsystemBase {
     private final SparkMax algaeMotor;
+
+    // ENUM Arm State and declaration
+    public static enum ArmState
+    {
+        UP,
+        DOWN
+    };
+
+    @Logged(name = "Arm State")
+    ArmState armState;
 
     public AlgaeArm(){
         algaeMotor = new SparkMax(ArmConstants.ARM_MOTOR_ID, MotorType.kBrushless);
@@ -28,15 +41,38 @@ public class AlgaeArm {
         
     }
 
-    public void runArm(double speed){
-        algaeMotor.set(speed);
+    public void runMotorUp(){
+        algaeMotor.set(ArmConstants.ARM_SPEED_UP);
     }
 
-    public static enum armState
-    {
-        UP,
-        DOWN
-    };
+    public void runMotorDown(){
+        algaeMotor.set(ArmConstants.ARM_SPEED_DOWN);
+    }
+
+    private void KeepArmUp() {
+        armState = ArmState.UP;
+        algaeMotor.set(ArmConstants.ARM_HOLD_UP);
+      }
+
+
+      private void KeepArmDown() {
+        armState = ArmState.DOWN;
+        algaeMotor.set(ArmConstants.ARM_HOLD_DOWN);
+      }
     
-    
+    // Commands -----
+
+    public Command runArmUp() {
+        // Inline construction of command goes here.
+        // Subsystem::RunOnce implicitly requires `this` subsystem.
+        return this.startRun(this::runMotorUp, this::KeepArmUp)
+                .withName("Roller/CMD/runRollerForward");
+    }
+
+    public Command runArmDown() {
+        // Inline construction of command goes here.
+        // Subsystem::RunOnce implicitly requires `this` subsystem.
+        return this.startRun(this::runMotorDown, this::KeepArmDown)
+                .withName("Roller/CMD/runRollerForward");
+    }
 }

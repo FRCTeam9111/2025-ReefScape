@@ -49,7 +49,10 @@ public final class Constants {
     public static final int DRIVER_CONTROLLER_PORT = 0;
     public static final int coralToLevel1 = 2;
     public static final int intakeGamePiece = 3;
+    public static final int moveArmUp = 5;
+    public static final int moveArmDown = 6;
   }
+  
   public static final class ArmConstants{
     public static final int ARM_MOTOR_ID = 5;
     public static final int ARM_MOTOR_CURRENT_LIMIT = 60;
