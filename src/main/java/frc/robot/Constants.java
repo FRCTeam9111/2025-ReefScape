@@ -52,7 +52,7 @@ public final class Constants {
     public static final int armUp = 6;
     public static final int armDown = 4;
     public static final int armDownDebouncer = 7;
-    public static final int topRollerForward = 8;
+    public static final int topRollerForwards = 8;
     public static final int topRollerBackwards = 9;
   }
   public static final class ArmConstants {

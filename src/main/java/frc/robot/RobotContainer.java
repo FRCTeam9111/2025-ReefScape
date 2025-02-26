@@ -90,7 +90,7 @@ public class RobotContainer {
       new JoystickButton(driverController, OperatorConstants.armDown)
       .whileTrue(algaeArm.ArmDown());
 
-      new JoystickButton(driverController, OperatorConstants.topRollerForward)
+      new JoystickButton(driverController, OperatorConstants.topRollerForwards)
       .whileTrue(topRoller.runRollerForward());
 
       new JoystickButton(driverController, OperatorConstants.topRollerBackwards)
