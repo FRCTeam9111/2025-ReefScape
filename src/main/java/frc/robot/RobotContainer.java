@@ -10,6 +10,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.epilogue.Logged;
 import frc.robot.subsystems.AlgaeArm;
 import frc.robot.subsystems.ArmRollerSubsystem;
+import frc.robot.subsystems.TopRollerSubsystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,6 +34,8 @@ public class RobotContainer {
   public final ArmRollerSubsystem armRoller = new ArmRollerSubsystem(); // Rename the rollersubsystem class to armRollerSubsystem
 
   public final AlgaeArm algaeArm = new AlgaeArm();
+
+  public final TopRollerSubsystem topRoller = new TopRollerSubsystem();
 
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -86,6 +89,12 @@ public class RobotContainer {
       .whileTrue(algaeArm.ArmUp());
       new JoystickButton(driverController, OperatorConstants.armDown)
       .whileTrue(algaeArm.ArmDown());
+
+      new JoystickButton(driverController, OperatorConstants.topRollerForward)
+      .whileTrue(topRoller.runRollerForward());
+
+      new JoystickButton(driverController, OperatorConstants.topRollerBackwards)
+      .whileTrue(topRoller.runRollerForward());
 
   }
   
