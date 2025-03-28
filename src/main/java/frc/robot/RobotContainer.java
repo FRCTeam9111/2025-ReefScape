@@ -81,6 +81,8 @@ public class RobotContainer {
           driveSubsystem.driveArcade(
               driveSubsystem, () -> -driverController.getRawAxis(0) * driverController.getRawAxis(3), () -> -driverController.getRawAxis(1) * driverController.getRawAxis(3)));
        
+      
+        elevator.setDefaultCommand(elevator.moveToSetPointCommand());
    // RollerSubsystem. TODO:
    // Add condition that roller may only roll out to eject coral when the arm is in a down position
    // Add another condition that roller roll in or out when the arm is a down position

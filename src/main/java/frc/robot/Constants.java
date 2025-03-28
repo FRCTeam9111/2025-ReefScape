@@ -129,7 +129,7 @@ public final class Constants {
         public static final double MIN_ANGLE_RADIANS = -Math.PI / 2.0;
         public static final double MAX_ANGLE_RADIANS = Math.PI / 2.0;
 
-        public static final int CURRENT_LIMIT = 50;
+        public static final int CURRENT_LIMIT = 20;
 
         /*
         kS = Static friction (voltage to overcome stiction)
@@ -139,14 +139,14 @@ public final class Constants {
         
         */
 
-        public static final double kP = 10; // TODO
+        public static final double kP = 1; // TODO
         public static final double kI = 0.01; // TODO
         public static final double kD = 0.01; // TODO
         public static final double kS = 0.017964; // TODO
         public static final double kG = 0.321192; // TODO
         public static final double kV = 0.876084;// TODO
         public static final double kA = 0.206676;// TODO
-        public static final double TOLERANCE = 0.02;
+        public static final double TOLERANCE = 0.1;
 
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 8; // TODO
         public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 4; // TODO
