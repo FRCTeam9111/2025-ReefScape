@@ -92,6 +92,9 @@ public final class Constants {
       public static final double elevatorSpeed = 0.2;
       public static final double stopElevatorMotor = 0.;
 
+      public static final double ArmSpeed = 0.2;
+      public static final double stopElevatorArmMotor = 0.;
+
       public static final double MOTION_LIMIT = -0.7;
       public static final double SCORING_MOVEMENT = -0.8;
 

@@ -132,6 +132,19 @@ public class ElevatorSubsystem extends SubsystemBase {
             .withTimeout(1.0);
     }
 
+    private void setElevatorArmMotorTest() {
+        armMotor.set(ElevatorConstants.armSpeed);
+    }
+
+    private void stopElevatorArmMotorTest() {
+        armMotor.set(ElevatorConstants.stopArmMotor);
+    }
+
+    public Command runElevatorArmMotorTest () {
+        return this.startEnd(this::setElevatorArmMotorTest, this::stopElevatorArmMotorTest)
+            .withTimeout(1.0);
+    }
+
 
 
     private void updateElevatorIOInfo() {
