@@ -102,6 +102,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         // Set follower to follow leader (invert if needed)
         liftFollowerMotor.follow(liftMotor, ElevatorConstants.INVERT_FOLLOWER_OUTPUT); // Use boolean constant
         */
+
+        liftMotor.getEncoder().setPosition(0);
+        liftFollowerMotor.getEncoder().setPosition(0);
     }
     @Logged(name="Elevator: Lift IOInfo")
     private final ElevatorIOInfo ioInfo = new ElevatorIOInfo();
@@ -252,8 +255,12 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
 
         
-            System.out.println("Running setTargetPositionCommand " + liftLevelTarget);
-            return moveToPositionCommand( () -> liftLevelTarget);
+        return Commands.runOnce( 
+            () -> {
+                System.out.println("Running setTargetPositionCommand " + liftLevelTarget);
+                moveToPositionCommand( () -> liftLevelTarget);
+            }
+        );
 
        // return run { () -> } 
     }
