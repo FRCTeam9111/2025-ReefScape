@@ -90,7 +90,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         // Configure follower motor
         SparkMaxConfig followerConfig = new SparkMaxConfig();
-        followerConfig.inverted(ElevatorConstants.FOLLOWER_MOTOR_INVERTED).idleMode(IdleMode.kBrake)
+        followerConfig.idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(ElevatorConstants.CURRENT_LIMIT);
         followerConfig.follow(liftMotor , ElevatorConstants.FOLLOWER_MOTOR_INVERTED);
         followerConfig.encoder
