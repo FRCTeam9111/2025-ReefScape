@@ -105,10 +105,10 @@ public class RobotContainer {
       .whileTrue(algaeArm.ArmDown());
 
     new JoystickButton(driverController, OperatorConstants.elevatorToL1)
-          .onTrue(elevator.setTargetPositionCommand(ElevatorPosition.CORAL_L1));
+          .onTrue(elevator.setTargetPositionCommand(() -> ElevatorPosition.CORAL_L1));
 
     new JoystickButton(driverController, OperatorConstants.elevatorToL2)
-          .onTrue(elevator.setTargetPositionCommand(ElevatorPosition.CORAL_L2));
+          .onTrue(elevator.setTargetPositionCommand(() -> ElevatorPosition.CORAL_L2));
 
    
 

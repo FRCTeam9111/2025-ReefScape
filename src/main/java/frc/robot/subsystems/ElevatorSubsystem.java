@@ -85,14 +85,14 @@ public class ElevatorSubsystem extends SubsystemBase {
                 .smartCurrentLimit(ElevatorConstants.CURRENT_LIMIT);
         liftMotorConfig.encoder
                 .positionConversionFactor(ElevatorConstants.liftPositionConversionFactor)
-                .velocityConversionFactor(ElevatorConstants.liftVelocityConversionFactor / 60.0);
+                .velocityConversionFactor(ElevatorConstants.liftVelocityConversionFactor /*60.0*/ );
         liftMotor.configure(liftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // Configure follower motor
         SparkMaxConfig followerConfig = new SparkMaxConfig();
         followerConfig.inverted(ElevatorConstants.FOLLOWER_MOTOR_INVERTED).idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(ElevatorConstants.CURRENT_LIMIT);
-        // followerConfig.follow(liftMotor , ElevatorConstants.FOLLOWER_MOTOR_INVERTED);
+        followerConfig.follow(liftMotor , ElevatorConstants.FOLLOWER_MOTOR_INVERTED);
         followerConfig.encoder
                 .positionConversionFactor(ElevatorConstants.liftPositionConversionFactor)
                 .velocityConversionFactor(ElevatorConstants.liftVelocityConversionFactor / 60.0);
@@ -209,7 +209,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
 
         liftMotor.setVoltage(voltage);
-        liftFollowerMotor.setVoltage(0 - voltage);
+        // liftFollowerMotor.setVoltage(0 - voltage);
     }
 
     // Runs motors
@@ -248,10 +248,19 @@ public class ElevatorSubsystem extends SubsystemBase {
         return Commands.sequence(
                 moveToSetPointCommand()
                         .until(() -> liftAtGoal()))
+                        .finallyDo((interrupted) -> {
+                            if (interrupted) {
+                                liftPidController.reset(getPosition());
+                            }
+                        })
                 .withTimeout(3)
                 .withName("elevator.moveToPosition");
     }
 
+    /*
+     * 
+     * 
+     
     public Command setTargetPositionCommand(ElevatorPosition level) {
 
         ElevatorPosition liftLevelTarget;
@@ -273,11 +282,37 @@ public class ElevatorSubsystem extends SubsystemBase {
                 liftLevelTarget = ElevatorPosition.BOTTOM;
                 break;
         }
-
+        
         System.out.println("Running setTargetPositionCommand " + liftLevelTarget);
         return moveToPositionCommand(() -> liftLevelTarget);
 
         // return run { () -> }
+    }*/
+
+    public Command setTargetPositionCommand(Supplier<ElevatorPosition> levelSupplier) {
+       
+        return Commands.runOnce(() -> {
+            ElevatorPosition level = levelSupplier.get();
+            switch (level) {
+                case INTAKE:
+                    level = ElevatorPosition.INTAKE;
+                    break;
+                case TOP:
+                    level = ElevatorPosition.TOP;
+                    break;
+                case CORAL_L1:
+                    level = ElevatorPosition.CORAL_L1;
+                    break;
+                case CORAL_L2:
+                    level = ElevatorPosition.CORAL_L2;
+                    break;
+                default:
+                    level = ElevatorPosition.BOTTOM;
+                    break;
+            }
+            System.out.println("Set target: " + level);
+            liftPidController.setGoal(level.value);
+        }).andThen(moveToSetPointCommand().until(this::liftAtGoal));
     }
 
 }
