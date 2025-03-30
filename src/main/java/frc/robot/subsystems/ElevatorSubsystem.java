@@ -90,12 +90,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         // Configure follower motor
         SparkMaxConfig followerConfig = new SparkMaxConfig();
-        followerConfig.idleMode(IdleMode.kBrake)
+        followerConfig.idleMode(IdleMode.kCoast)
                 .smartCurrentLimit(ElevatorConstants.CURRENT_LIMIT);
-        followerConfig.follow(liftMotor , ElevatorConstants.FOLLOWER_MOTOR_INVERTED);
+        //followerConfig.follow(liftMotor , ElevatorConstants.FOLLOWER_MOTOR_INVERTED);
         followerConfig.encoder
                 .positionConversionFactor(ElevatorConstants.liftPositionConversionFactor)
-                .velocityConversionFactor(ElevatorConstants.liftVelocityConversionFactor / 60.0);
+                .velocityConversionFactor(ElevatorConstants.liftVelocityConversionFactor /* 60.0*/);
         liftFollowerMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         /*
@@ -208,8 +208,8 @@ public class ElevatorSubsystem extends SubsystemBase {
             voltage = 0.0;
         }
 
-        liftMotor.setVoltage(voltage);
-        // liftFollowerMotor.setVoltage(0 - voltage);
+        liftMotor.setVoltage(-voltage);
+        liftFollowerMotor.setVoltage(voltage);
     }
 
     // Runs motors
@@ -232,8 +232,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     public boolean liftAtGoal() {
         return liftPidController.atGoal();
     }
-
-    public Command moveToPositionCommand(Supplier<ElevatorPosition> goalPositionSupplier) {
+/* 
+ * public Command moveToPositionCommand(Supplier<ElevatorPosition> goalPositionSupplier) {
         // ioInfo.liftDesiredPositionInMeters = goalPositionSupplier.get().value;
         // System.out.println("Running moveToPositionCommand");
         desiredLiftLevel = goalPositionSupplier.get().value;
@@ -256,6 +256,8 @@ public class ElevatorSubsystem extends SubsystemBase {
                 .withTimeout(3)
                 .withName("elevator.moveToPosition");
     }
+*/
+    
 
     /*
      * 

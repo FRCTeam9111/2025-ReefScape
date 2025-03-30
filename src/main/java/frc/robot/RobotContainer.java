@@ -109,6 +109,9 @@ public class RobotContainer {
 
     new JoystickButton(driverController, OperatorConstants.elevatorToL2)
           .onTrue(elevator.setTargetPositionCommand(() -> ElevatorPosition.CORAL_L2));
+    
+    new JoystickButton(driverController, OperatorConstants.resetLiftToBottomPosition)
+          .onTrue(elevator.setTargetPositionCommand(() -> ElevatorPosition.BOTTOM));
 
    
 

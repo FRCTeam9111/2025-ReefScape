@@ -58,7 +58,7 @@ public final class Constants {
     public static final int elevatorToL1 = 7;
     public static final int elevatorToL2 = 9;
     // public static final int elevatorToTop = 8;
-    public static final int resetLiftToBottomPosition = 9;
+    public static final int resetLiftToBottomPosition = 8;
     
   }
   public static final class ArmConstants{
@@ -109,7 +109,7 @@ public final class Constants {
       public static enum ElevatorPosition {
         BOTTOM(0.0),      // min height will trigger limit switch
         INTAKE(0.35),     // coral intake
-        CORAL_L1(0.8),
+        CORAL_L1(0.03),
         CORAL_L2(1.2),
         TOP(1.5);        // max height
   
@@ -152,7 +152,7 @@ public final class Constants {
         public static final double kG = 0.321192; // TODO
         public static final double kV = 0.876084;// TODO
         public static final double kA = 0.206676;// TODO
-        public static final double TOLERANCE = 0.1;
+        public static final double TOLERANCE = 0.5;
 
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 8; // TODO
         public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 4; // TODO
