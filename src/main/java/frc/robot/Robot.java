@@ -49,6 +49,11 @@ public class Robot extends TimedRobot {
 
   }
 
+  @Override
+public void robotInit() {
+    GlobalStates.INITIALIZED.commandEnabled(); // <-- This should be called after subsystems are ready
+}
+
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.

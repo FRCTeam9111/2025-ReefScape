@@ -2,66 +2,59 @@ package frc.robot.subsystems;
 
 import java.util.function.Supplier;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.techhounds.houndutil.houndlib.Utils;
-import com.techhounds.houndutil.houndlib.subsystems.BaseLinearMechanism;
+import com.techhounds.houndutil.houndlib.subsystems.BaseSingleJointedArm;
 import com.techhounds.houndutil.houndlog.annotations.Log;
 import com.techhounds.houndutil.houndlog.annotations.LoggedObject;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.units.measure.MutDistance;
-import edu.wpi.first.units.measure.MutLinearVelocity;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.PositionTracker;
 import frc.robot.Constants;
-import frc.robot.Constants.Arm;
-import frc.robot.Constants.Arm.*;
-import frc.robot.GlobalStates;
-import frc.robot.Constants.ElevatorConstants.*;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.PositionTracker;
+import frc.robot.Constants.Arm.ArmPosition;
+import frc.robot.GlobalStates;
 
-import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import frc.robot.ScoreLevel;
-import frc.robot.CoralSim;
-
 
 @LoggedObject
-public class Elevator extends SubsystemBase implements BaseLinearMechanism<ElevatorPosition> {
+public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPosition> {
     @Log
     private final SparkMax motor;
 
     private SparkMaxConfig motorConfig;
 
-    public static ScoreLevel lastScore = ScoreLevel.None;
-
     @Log(groups = "control")
     private final ProfiledPIDController pidController = new ProfiledPIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD, ElevatorConstants.MOVEMENT_CONSTRAINTS);
 
     @Log(groups = "control")
-    private final ElevatorFeedforward feedforwardController = new ElevatorFeedforward(ElevatorConstants.kS,
+    private final ArmFeedforward feedforwardController = new ArmFeedforward(ElevatorConstants.kS,
     ElevatorConstants.kG, ElevatorConstants.kV, ElevatorConstants.kA);
 
     /**
@@ -69,15 +62,15 @@ public class Elevator extends SubsystemBase implements BaseLinearMechanism<Eleva
      * rotational mechanism w.r.t. its setpoints, we still control it as a linear
      * mechanism since that is the cloest physical mechanism to this)
      */
-    private final ElevatorSim elevatorSim = new ElevatorSim(
+    private final SingleJointedArmSim armSim = new SingleJointedArmSim(
         ElevatorConstants.MOTOR_GEARBOX_REPR,
         ElevatorConstants.GEARING,
-        ElevatorConstants.MASS_KG,
-        ElevatorConstants.DRUM_RADIUS_METERS,
-        ElevatorConstants.MIN_HEIGHT_METERS,
-        ElevatorConstants.MAX_HEIGHT_METERS,
+        Constants.Arm.MOI,
+        Constants.Arm.COM_DISTANCE_METERS,
+        Constants.Arm.MIN_ANGLE_RADIANS,
+        Constants.Arm.MAX_ANGLE_RADIANS,
             true,
-            ElevatorPosition.BOTTOM.value);
+            ArmPosition.TOP.value);
 
     @Log(groups = "control")
     private double feedbackVoltage = 0;
@@ -87,88 +80,88 @@ public class Elevator extends SubsystemBase implements BaseLinearMechanism<Eleva
     private double simVelocity = 0.0;
 
     private final MutVoltage sysidAppliedVoltageMeasure = Volts.mutable(0);
-    private final MutDistance sysidPositionMeasure = Meters.mutable(0);
-    private final MutLinearVelocity sysidVelocityMeasure = MetersPerSecond.mutable(0);
+    private final MutAngle sysidPositionMeasure = Radians.mutable(0);
+    private final MutAngularVelocity sysidVelocityMeasure = RadiansPerSecond.mutable(0);
 
     private final SysIdRoutine sysIdRoutine;
 
     private final PositionTracker positionTracker;
     private final MechanismLigament2d ligament;
+    private final Supplier<Pose3d> carriagePoseSupplier;
 
     @Log
     private boolean initialized;
 
-    public Elevator(PositionTracker positionTracker, MechanismLigament2d ligament) {
+    public Arm(PositionTracker positionTracker, MechanismLigament2d ligament, Supplier<Pose3d> carriagePoseSupplier) {
+
         motorConfig = new SparkMaxConfig();
-
         motorConfig
-                .inverted(ElevatorConstants.MOTOR_INVERTED)
+                .inverted(Constants.Arm.MOTOR_INVERTED)
                 .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(ElevatorConstants.CURRENT_LIMIT);
+                .smartCurrentLimit(Constants.Arm.CURRENT_LIMIT);
         motorConfig.encoder
-                .positionConversionFactor(ElevatorConstants.ENCODER_ROTATIONS_TO_METERS)
-                .velocityConversionFactor(ElevatorConstants.ENCODER_ROTATIONS_TO_METERS / 60.0);
+                .positionConversionFactor(Constants.Arm.ENCODER_ROTATIONS_TO_METERS)
+                .velocityConversionFactor(Constants.Arm.ENCODER_ROTATIONS_TO_METERS / 60.0);
 
-        motor = new SparkMax(ElevatorConstants.MOTOR_ID, MotorType.kBrushless);
+        motor = new SparkMax(Constants.Arm.MOTOR_ID, MotorType.kBrushless);
         motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         sysIdRoutine = new SysIdRoutine(
-                new SysIdRoutine.Config(Volts.of(1).per(Seconds), Volts.of(5), null, null),
+                new SysIdRoutine.Config(Volts.of(1).per(Second), Volts.of(3), null, null),
                 new SysIdRoutine.Mechanism(
                         (Voltage volts) -> setVoltage(volts.magnitude()),
                         log -> {
                             log.motor("primary")
                                     .voltage(sysidAppliedVoltageMeasure.mut_replace(motor.getAppliedOutput(), Volts))
-                                    .linearPosition(sysidPositionMeasure.mut_replace(getPosition(), Meters))
-                                    .linearVelocity(sysidVelocityMeasure.mut_replace(getVelocity(), MetersPerSecond));
+                                    .angularPosition(sysidPositionMeasure.mut_replace(getPosition(), Radians))
+                                    .angularVelocity(sysidVelocityMeasure.mut_replace(getVelocity(), RadiansPerSecond));
                         },
                         this));
 
         this.positionTracker = positionTracker;
         this.ligament = ligament;
+        this.carriagePoseSupplier = carriagePoseSupplier;
 
-        positionTracker.setElevatorPositionSupplier(this::getPosition);
+        positionTracker.setArmAngleSupplier(this::getPosition);
+
         setDefaultCommand(moveToCurrentGoalCommand());
     }
 
     @Override
     public void simulationPeriodic() {
-        elevatorSim.setInput(motor.getAppliedOutput());
-        elevatorSim.update(0.020);
-        motor.getEncoder().setPosition(elevatorSim.getPositionMeters());
-        simVelocity = elevatorSim.getVelocityMetersPerSecond();
-
-        ligament.setLength(getPosition());
+        armSim.setInput(motor.getAppliedOutput());
+        armSim.update(0.020);
+        motor.getEncoder().setPosition(armSim.getAngleRads());
+        simVelocity = armSim.getVelocityRadPerSec();
+        ligament.setAngle(Units.radiansToDegrees(getPosition()) + 270);
     }
 
     public boolean getInitialized() {
         return initialized;
     }
 
+    // return new Pose3d(0.168, 0, 0.247, new Rotation3d());
+    // -0.083
+
     @Log(groups = "components")
-    public Pose3d getFrameComponentPose() {
-        return new Pose3d(0.14, 0, 0.13, new Rotation3d());
+    public Pose3d getArmComponentPose() {
+        return carriagePoseSupplier.get()
+                .plus(new Transform3d(0.083, 0, 0, new Rotation3d()))
+                .plus(new Transform3d(0, 0, 0, new Rotation3d(0, -getPosition(), 0)));
     }
 
     @Log(groups = "components")
-    public Pose3d getStageComponentPose() {
-        Transform3d transform = new Transform3d();
-        if (getPosition() > 0.706) {
-            transform = new Transform3d(0, 0, getPosition() - 0.706, new Rotation3d());
-        }
-        return new Pose3d(0.14, 0, 0.169, new Rotation3d()).plus(transform);
+    public Pose3d getClawComponentPose() {
+        return getArmComponentPose().plus(new Transform3d(0.2585, 0, 0, new Rotation3d()));
     }
 
-    @Log(groups = "components")
-    public Pose3d getCarriageComponentPose() {
-        return new Pose3d(0.14, 0, 0.247 + getPosition(), new Rotation3d());
-    }
-
+    @Log
     @Override
     public double getPosition() {
         return motor.getEncoder().getPosition();
     }
 
+    @Log
     public double getVelocity() {
         if (RobotBase.isReal())
             return motor.getEncoder().getVelocity();
@@ -178,56 +171,48 @@ public class Elevator extends SubsystemBase implements BaseLinearMechanism<Eleva
 
     @Override
     public void resetPosition() {
-        motor.getEncoder().setPosition(ElevatorPosition.BOTTOM.value);
+        motor.getEncoder().setPosition(ArmPosition.TOP.value);
         initialized = true;
     }
 
     @Override
     public void setVoltage(double voltage) {
-        System.out.println("in setVoltage");
         voltage = MathUtil.clamp(voltage, -12, 12);
-        voltage = Utils.applySoftStops(voltage, getPosition(), ElevatorConstants.MIN_HEIGHT_METERS, ElevatorConstants.MAX_HEIGHT_METERS);
+        voltage = Utils.applySoftStops(voltage, getPosition(), Constants.Arm.MIN_ANGLE_RADIANS, Constants.Arm.MAX_ANGLE_RADIANS);
 
         if (voltage < 0
-                && positionTracker.getElevatorPosition() < Constants.ElevatorConstants.MOTION_LIMIT
-                && positionTracker.getArmAngle() < 0) {
+                && getPosition() < 0
+                && positionTracker.getElevatorPosition() < Constants.ElevatorConstants.MOTION_LIMIT) {
             voltage = 0;
-            System.out.println("voltage is 0");
         }
 
         if (!GlobalStates.INITIALIZED.enabled()) {
             voltage = 0.0;
-            System.out.println("initialized not enabled");
         }
 
         motor.setVoltage(voltage);
-
     }
 
     @Override
     public Command moveToCurrentGoalCommand() {
-        System.out.println("moveToCurrentGoalCommand");
-        SmartDashboard.putNumber("Elevator/Feedback Voltage", feedbackVoltage);
-SmartDashboard.putNumber("Elevator/Feedforward Voltage", feedforwardVoltage);
-SmartDashboard.putNumber("Elevator/Setpoint Position", pidController.getSetpoint().position);
-SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint().velocity);
         return run(() -> {
             feedbackVoltage = pidController.calculate(getPosition());
-            feedforwardVoltage = feedforwardController.calculate(pidController.getSetpoint().velocity);
+            // not the setpoint position, as smart people found that using the current
+            // position for kG works best
+            feedforwardVoltage = feedforwardController.calculate(getPosition(), pidController.getSetpoint().velocity);
             setVoltage(feedbackVoltage + feedforwardVoltage);
-        }).withName("elevator.moveToCurrentGoal");
+        }).withName("arm.moveToCurrentGoal");
     }
 
     @Override
-    public Command moveToPositionCommand(Supplier<ElevatorPosition> goalPositionSupplier) {
-        System.out.println("moveToPositionCommand");
+    public Command moveToPositionCommand(Supplier<ArmPosition> goalPositionSupplier) {
         return Commands.sequence(
                 runOnce(() -> pidController.reset(getPosition())),
                 runOnce(() -> pidController.setGoal(goalPositionSupplier.get().value)),
                 moveToCurrentGoalCommand()
                         .until(() -> pidController.atGoal()))
                 .withTimeout(3)
-                .withName("elevator.moveToPosition");
+                .withName("arm.moveToPosition");
     }
 
     @Override
@@ -235,30 +220,30 @@ SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint
         return Commands.sequence(
                 runOnce(() -> pidController.reset(getPosition())),
                 runOnce(() -> pidController.setGoal(goalPositionSupplier.get())),
-                moveToCurrentGoalCommand().until(this::atGoal)).withName("elevator.moveToArbitraryPosition");
+                moveToCurrentGoalCommand().until(this::atGoal)).withName("arm.moveToArbitraryPosition");
     }
 
     @Override
     public Command movePositionDeltaCommand(Supplier<Double> delta) {
         return moveToArbitraryPositionCommand(() -> pidController.getGoal().position + delta.get())
-                .withName("elevator.movePositionDelta");
+                .withName("arm.movePositionDelta");
     }
 
     @Override
     public Command holdCurrentPositionCommand() {
         return runOnce(() -> pidController.setGoal(getPosition())).andThen(moveToCurrentGoalCommand())
-                .withName("elevator.holdCurrentPosition");
+                .withName("arm.holdCurrentPosition");
     }
 
     @Override
     public Command resetPositionCommand() {
-        return runOnce(this::resetPosition).withName("elevator.resetPosition");
+        return runOnce(this::resetPosition).withName("arm.resetPosition");
     }
 
     @Override
     public Command setOverridenSpeedCommand(Supplier<Double> speed) {
         return runEnd(() -> setVoltage(12.0 * speed.get()), () -> setVoltage(0))
-                .withName("elevator.setOverriddenSpeed");
+                .withName("arm.setOverriddenSpeed");
     }
 
     @Override
@@ -273,7 +258,7 @@ SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint
                     motor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
                     pidController.reset(getPosition());
                 }).withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
-                .withName("elevator.coastMotorsCommand");
+                .withName("arm.coastMotorsCommand");
     }
 
     public Command sysIdQuasistaticCommand(SysIdRoutine.Direction direction) {
@@ -291,40 +276,5 @@ SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint
 
     public boolean atGoal() {
         return pidController.atGoal();
-    }
-
-    public Command prepareCoralScoreCommand(ScoreLevel level, Elevator elevator) {
-        ElevatorPosition elevatorPosition;
-        ArmPosition armPosition;
-        System.out.println("Preparing to score at level: " + level);
-        switch (level) {
-            case L1 -> {
-                elevatorPosition = ElevatorPosition.L1;
-                armPosition = ArmPosition.L1;
-            }
-            case L2 -> {
-                elevatorPosition = ElevatorPosition.L2;
-                armPosition = ArmPosition.L2;
-            }
-            case L3 -> {
-                elevatorPosition = ElevatorPosition.L3;
-                armPosition = ArmPosition.L3;
-            }
-            case L4 -> {
-                elevatorPosition = ElevatorPosition.L4;
-                armPosition = ArmPosition.L4;
-            }
-            default -> {
-                throw new IllegalArgumentException("Invalid ScoreLevel");
-            }
-        }
-
-        return Commands.runOnce(() -> {
-            lastScore = level;
-        }).andThen(elevator.moveToPositionCommand(() -> elevatorPosition));
-                /* .andThen(Commands.parallel(
-                        arm.moveToPositionCommand(() -> armPosition).asProxy(),
-                        Commands.waitSeconds(0.5)
-                                .andThen(elevator.moveToPositionCommand(() -> elevatorPosition).asProxy())));*/
     }
 }
