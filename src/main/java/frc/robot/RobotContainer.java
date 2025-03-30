@@ -8,17 +8,23 @@ import frc.robot.Constants.ElevatorConstants.ElevatorPosition;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.Elevator;
 import edu.wpi.first.epilogue.Logged;
 import frc.robot.subsystems.AlgaeArm;
 import frc.robot.subsystems.ArmRollerSubsystem;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.math.util.Units;
 
 
 /**
@@ -36,7 +42,17 @@ public class RobotContainer {
   public final ArmRollerSubsystem armRoller = new ArmRollerSubsystem(); // Rename the rollersubsystem class to armRollerSubsystem
 
   public final AlgaeArm algaeArm = new AlgaeArm();
-  private final ElevatorSubsystem elevator = new ElevatorSubsystem();
+
+  private Mechanism2d mechanisms = new Mechanism2d(5, 3);
+  private MechanismRoot2d root = mechanisms.getRoot("root", 2.5, 0.25);
+  
+  PositionTracker positionTracker = new PositionTracker(); 
+private MechanismLigament2d elevatorLigament = root
+            .append(new MechanismLigament2d("elevatorStage", Units.inchesToMeters(10), 90,
+                    4,
+                    new Color8Bit(Color.kOrange)));
+
+  Elevator elevator = new Elevator(positionTracker, elevatorLigament);
 
 
   // The autonomous chooser
@@ -82,7 +98,7 @@ public class RobotContainer {
               driveSubsystem, () -> -driverController.getRawAxis(0) * driverController.getRawAxis(3), () -> -driverController.getRawAxis(1) * driverController.getRawAxis(3)));
        
       
-        elevator.setDefaultCommand(elevator.moveToSetPointCommand());
+        elevator.setDefaultCommand(elevator.moveToCurrentGoalCommand());
    // RollerSubsystem. TODO:
    // Add condition that roller may only roll out to eject coral when the arm is in a down position
    // Add another condition that roller roll in or out when the arm is a down position
@@ -105,13 +121,13 @@ public class RobotContainer {
       .whileTrue(algaeArm.ArmDown());
 
     new JoystickButton(driverController, OperatorConstants.elevatorToL1)
-          .onTrue(elevator.setTargetPositionCommand(() -> ElevatorPosition.CORAL_L1));
+          .onTrue(elevator.moveToPositionCommand(() -> ElevatorPosition.L1));
 
     new JoystickButton(driverController, OperatorConstants.elevatorToL2)
-          .onTrue(elevator.setTargetPositionCommand(() -> ElevatorPosition.CORAL_L2));
+          .onTrue(elevator.moveToPositionCommand(() -> ElevatorPosition.L2));
     
     new JoystickButton(driverController, OperatorConstants.resetLiftToBottomPosition)
-          .onTrue(elevator.setTargetPositionCommand(() -> ElevatorPosition.BOTTOM));
+          .onTrue(elevator.moveToPositionCommand(() -> ElevatorPosition.BOTTOM));
 
    
 
