@@ -124,7 +124,7 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
 
         positionTracker.setArmAngleSupplier(this::getPosition);
 
-        setDefaultCommand(moveToCurrentGoalCommand());
+        //setDefaultCommand(moveToCurrentGoalCommand());
     }
 
     @Override

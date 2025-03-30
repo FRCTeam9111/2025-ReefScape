@@ -46,12 +46,15 @@ public class Robot extends TimedRobot {
     });
     Epilogue.bind(this);
 
+    GlobalStates.INITIALIZED.enableCommand().schedule();
+
 
   }
 
   @Override
 public void robotInit() {
-    GlobalStates.INITIALIZED.commandEnabled(); // <-- This should be called after subsystems are ready
+  System.out.println("robotInit");
+    GlobalStates.INITIALIZED.enableCommand().schedule();
 }
 
   /**

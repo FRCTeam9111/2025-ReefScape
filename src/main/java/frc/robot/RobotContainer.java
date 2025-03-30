@@ -131,14 +131,16 @@ public class RobotContainer {
     new JoystickButton(driverController, OperatorConstants.elevatorToL1)
         .onTrue(elevator.prepareCoralScoreCommand(ScoreLevel.L1, elevator).withName("MoveElevatorToL1"));
 
-   // new JoystickButton(driverController, OperatorConstants.elevatorToL2)
-     //   .onTrue(elevator.moveToPositionCommand(() -> ElevatorPosition.L2));
+   new JoystickButton(driverController, OperatorConstants.elevatorToL2)
+        .onTrue(elevator.moveToPositionCommand(() -> ElevatorPosition.L2));
 
-    //new JoystickButton(driverController, OperatorConstants.resetLiftToBottomPosition)
-      //  .onTrue(elevator.moveToPositionCommand(() -> ElevatorPosition.BOTTOM));
+    new JoystickButton(driverController, OperatorConstants.resetLiftToBottomPosition)
+        .onTrue(elevator.moveToPositionCommand(() -> ElevatorPosition.BOTTOM));
 
     // new JoystickButton(driverController, OperatorConstants.armDownDebouncer)
     // .whileTrue(algaeArm.runDebounceArmDownCmd());
+
+
 
   }
 
