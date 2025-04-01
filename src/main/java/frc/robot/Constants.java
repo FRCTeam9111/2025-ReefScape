@@ -57,15 +57,16 @@ public final class Constants {
 
   public static class OperatorConstants {
     public static final int DRIVER_CONTROLLER_PORT = 0;
+    public static final int coralToReefAutomated = 1;
     public static final int coralToReef = 5;
     public static final int intakeGamePiece = 3;
     public static final int armUp = 6;
     public static final int armDown = 4;
     // public static final int armDownDebouncer = 7;
-    public static final int elevatorToL1 = 7;
-    public static final int elevatorToL2 = 9;
+    public static final int elevatorToL1 = 9;
+    public static final int elevatorToL2 = 7;
     // public static final int elevatorToTop = 8;
-    public static final int resetLiftToBottomPosition = 8;
+    public static final int elevatorToL3 = 8;
 
   }
 
@@ -91,15 +92,15 @@ public final class Constants {
 
   public static final class ElevatorConstants {
     public static enum ElevatorPosition {
-      BOTTOM(0.0698),
+      BOTTOM(0.0),
       INTAKE_PREP(0.55),
       INTAKE(0.355),
       ALGAE_L2(0.884),
       ALGAE_L3(1.234),
 
-      L1(0.323),
-      L2(0.31),
-      L3(0.70),
+      L1(0.0),
+      L2(0.0),
+      L3(0.367),
       L4(1.27),
       TOP(1.57);
 
@@ -146,7 +147,8 @@ public final class Constants {
         
   }
 
-  public static final class Arm {
+  //Coral Arm
+  public static final class CoralArm {
     public static enum ArmPosition {
       BOTTOM(-Math.PI / 2.0 + Units.degreesToRadians(5)),
       HORIZONTAL(0),
@@ -155,6 +157,7 @@ public final class Constants {
       L3(Units.degreesToRadians(55)),
       L4(1.033),
       TOP(Math.PI / 2.0);
+      //TOP(0);
 
       public final double value;
 
@@ -181,17 +184,19 @@ public final class Constants {
 
     public static final int CURRENT_LIMIT = 50;
 
-    public static final double kP = 10; // TODO
+    public static final double kP = 5; // TODO
     public static final double kI = 0; // TODO
     public static final double kD = 0; // TODO
-    public static final double kS = 0.017964; // TODO
+    public static final double  kS= 0.017964; // TODO
     public static final double kG = 0.321192; // TODO
-    public static final double kV = 0.876084;// TODO
-    public static final double kA = 0.206676;// TODO
-    public static final double TOLERANCE = 0.02;
+    //public static final double kV = 0.876084;// TODO
+    public static final double kV = 0.5;
+    //public static final double kA = 0.206676;// TODO
+    public static final double kA = 0.1;
+    public static final double TOLERANCE = 0.1;//0.02
 
-    public static final double MAX_VELOCITY_METERS_PER_SECOND = 8; // TODO
-    public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 4; // TODO
+    public static final double MAX_VELOCITY_METERS_PER_SECOND = 2; // TODO
+    public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 1; // TODO
     public static final TrapezoidProfile.Constraints MOVEMENT_CONSTRAINTS = new TrapezoidProfile.Constraints(
         MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
   }

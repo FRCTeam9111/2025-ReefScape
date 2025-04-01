@@ -33,12 +33,17 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.PositionTracker;
+import frc.robot.Robot;
 import frc.robot.Constants;
-import frc.robot.Constants.Arm;
-import frc.robot.Constants.Arm.*;
+import frc.robot.Constants.CoralArm;
+import frc.robot.Constants.CoralArm.*;
 import frc.robot.GlobalStates;
 import frc.robot.Constants.ElevatorConstants.*;
 import frc.robot.Constants.ElevatorConstants;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.logging.errors.ErrorHandler;
+import edu.wpi.first.epilogue.Epilogue;
+
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
@@ -48,7 +53,7 @@ import frc.robot.ScoreLevel;
 import frc.robot.CoralSim;
 
 
-@LoggedObject
+@Logged
 public class Elevator extends SubsystemBase implements BaseLinearMechanism<ElevatorPosition> {
     @Log
     private final SparkMax motor;
@@ -63,6 +68,31 @@ public class Elevator extends SubsystemBase implements BaseLinearMechanism<Eleva
     @Log(groups = "control")
     private final ElevatorFeedforward feedforwardController = new ElevatorFeedforward(ElevatorConstants.kS,
     ElevatorConstants.kG, ElevatorConstants.kV, ElevatorConstants.kA);
+
+    @Logged(name="Elevator: Lift IOInfo")
+    private final ElevatorIOInfo ioInfo = new ElevatorIOInfo();
+    @Logged
+    public static class ElevatorIOInfo {
+        public double liftAtPositionInMeters = 0.0;
+        public double liftDesiredPositionInMeters = ElevatorPosition.BOTTOM.value;
+        public double liftSimVelocityInMetersPerSec = 0.0;
+        public double liftVelocityInMetersPerSec = 0.0;
+        public double liftAppliedVolts = 0.0;
+        public double liftCurrentAmps = 0.0;
+    }
+
+
+      private void updateElevatorIOInfo() {
+        ioInfo.liftAtPositionInMeters = motor.getEncoder().getPosition();
+        ioInfo.liftVelocityInMetersPerSec = motor.get();     // note: does not get updated during simulation use corresponding liftSimVelocity
+        ioInfo.liftAppliedVolts = motor.getAppliedOutput();
+        ioInfo.liftCurrentAmps = motor.getOutputCurrent();
+        // note: ioInfo.liftDesiredPositionMeters updated with the operator control commands
+
+        if (Robot.isSimulation()) {
+            ioInfo.liftSimVelocityInMetersPerSec = elevatorSim.getVelocityMetersPerSecond();
+        }
+    }
 
     /**
      * The representation of the "elevator" for simulation. (even though this is a
@@ -129,6 +159,14 @@ public class Elevator extends SubsystemBase implements BaseLinearMechanism<Eleva
 
         positionTracker.setElevatorPositionSupplier(this::getPosition);
         setDefaultCommand(moveToCurrentGoalCommand());
+    }
+
+    @Override
+    public void periodic() {
+        // note: default command moveToSetPointCommand() automatically runs
+        updateElevatorIOInfo();
+        SmartDashboard.putData(this);
+        System.out.println("elevator encoder" + getPosition() );
     }
 
     @Override
@@ -293,7 +331,7 @@ SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint
         return pidController.atGoal();
     }
 
-    public Command prepareCoralScoreCommand(ScoreLevel level, Elevator elevator) {
+    public Command prepareCoralScoreCommand(ScoreLevel level, Elevator elevator, Arm arm) {
         ElevatorPosition elevatorPosition;
         ArmPosition armPosition;
         System.out.println("Preparing to score at level: " + level);
@@ -321,10 +359,9 @@ SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint
 
         return Commands.runOnce(() -> {
             lastScore = level;
-        }).andThen(elevator.moveToPositionCommand(() -> elevatorPosition));
-                /* .andThen(Commands.parallel(
+        }).andThen(Commands.parallel(
                         arm.moveToPositionCommand(() -> armPosition).asProxy(),
                         Commands.waitSeconds(0.5)
-                                .andThen(elevator.moveToPositionCommand(() -> elevatorPosition).asProxy())));*/
+                                .andThen(elevator.moveToPositionCommand(() -> elevatorPosition).asProxy())));
     }
 }

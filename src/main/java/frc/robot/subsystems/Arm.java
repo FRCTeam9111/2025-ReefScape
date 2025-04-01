@@ -27,15 +27,18 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
-import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.CoralArm.*;
 import frc.robot.PositionTracker;
-import frc.robot.Constants.Arm.ArmPosition;
+import frc.robot.subsystems.ArmRollerSubsystem.RollerState;
+import frc.robot.Constants.CoralArm.ArmPosition;
+import frc.robot.Constants.ArmRollerConstants;
 import frc.robot.GlobalStates;
 
 import static edu.wpi.first.units.Units.Radians;
@@ -51,11 +54,11 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
     private SparkMaxConfig motorConfig;
 
     @Log(groups = "control")
-    private final ProfiledPIDController pidController = new ProfiledPIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD, ElevatorConstants.MOVEMENT_CONSTRAINTS);
+    private final ProfiledPIDController pidController = new ProfiledPIDController(Constants.CoralArm.kP, Constants.CoralArm.kI, Constants.CoralArm.kD, Constants.CoralArm.MOVEMENT_CONSTRAINTS);
 
     @Log(groups = "control")
-    private final ArmFeedforward feedforwardController = new ArmFeedforward(ElevatorConstants.kS,
-    ElevatorConstants.kG, ElevatorConstants.kV, ElevatorConstants.kA);
+    private final ArmFeedforward feedforwardController = new ArmFeedforward(Constants.CoralArm.kS,
+    Constants.CoralArm.kG, Constants.CoralArm.kV, Constants.CoralArm.kA);
 
     /**
      * The representation of the "elevator" for simulation. (even though this is a
@@ -63,12 +66,12 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
      * mechanism since that is the cloest physical mechanism to this)
      */
     private final SingleJointedArmSim armSim = new SingleJointedArmSim(
-        ElevatorConstants.MOTOR_GEARBOX_REPR,
-        ElevatorConstants.GEARING,
-        Constants.Arm.MOI,
-        Constants.Arm.COM_DISTANCE_METERS,
-        Constants.Arm.MIN_ANGLE_RADIANS,
-        Constants.Arm.MAX_ANGLE_RADIANS,
+        Constants.CoralArm.MOTOR_GEARBOX_REPR,
+        Constants.CoralArm.GEARING,
+        Constants.CoralArm.MOI,
+        Constants.CoralArm.COM_DISTANCE_METERS,
+        Constants.CoralArm.MIN_ANGLE_RADIANS,
+        Constants.CoralArm.MAX_ANGLE_RADIANS,
             true,
             ArmPosition.TOP.value);
 
@@ -96,14 +99,14 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
 
         motorConfig = new SparkMaxConfig();
         motorConfig
-                .inverted(Constants.Arm.MOTOR_INVERTED)
+                .inverted(Constants.CoralArm.MOTOR_INVERTED)
                 .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(Constants.Arm.CURRENT_LIMIT);
+                .smartCurrentLimit(Constants.CoralArm.CURRENT_LIMIT);
         motorConfig.encoder
-                .positionConversionFactor(Constants.Arm.ENCODER_ROTATIONS_TO_METERS)
-                .velocityConversionFactor(Constants.Arm.ENCODER_ROTATIONS_TO_METERS / 60.0);
+                .positionConversionFactor(Constants.CoralArm.ENCODER_ROTATIONS_TO_METERS)
+                .velocityConversionFactor(Constants.CoralArm.ENCODER_ROTATIONS_TO_METERS / 60.0);
 
-        motor = new SparkMax(Constants.Arm.MOTOR_ID, MotorType.kBrushless);
+        motor = new SparkMax(Constants.CoralArm.MOTOR_ID, MotorType.kBrushless);
         motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         sysIdRoutine = new SysIdRoutine(
@@ -121,10 +124,17 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
         this.positionTracker = positionTracker;
         this.ligament = ligament;
         this.carriagePoseSupplier = carriagePoseSupplier;
+        pidController.setGoal(ArmPosition.TOP.value);
+        resetPosition();
 
         positionTracker.setArmAngleSupplier(this::getPosition);
 
-        //setDefaultCommand(moveToCurrentGoalCommand());
+       // setDefaultCommand(moveToCurrentGoalCommand().beforeStarting(Commands.runOnce(() -> pidController.reset(getPosition()))));
+    }
+
+    @Override
+    public void periodic() {
+        System.out.println("Elevator Arm Encoder: " + getPosition() );
     }
 
     @Override
@@ -140,6 +150,45 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
         return initialized;
     }
 
+     private void runArmMotorReverse() {
+         motor.set(-Math.abs(.1));
+      }
+
+    private void runArmMotorForward() {
+        motor.set(Math.abs(.1));
+      }
+    
+    private void stopArmMotor()
+    {
+        motor.set(0.0);
+    }
+
+    public Command armMotorStop() {
+        return this.runOnce(this::stopArmMotor);
+      }
+
+    public Command armUpCommand()
+    {
+        return this.startEnd(this::runArmMotorForward, this::stopArmMotor );
+    }
+
+    public Command armDownCommand()
+    {
+        return this.startEnd(this::runArmMotorReverse, this::stopArmMotor );
+    }
+
+    public void setMotorFromPOV(int povAngle) {
+        switch (povAngle) {
+            case 0:    // Up: Forward
+                runArmMotorForward();
+                break;
+            case 180:  // Down: Reverse
+                runArmMotorReverse();
+                break;
+            default:   // -1 (not pressed) or diagonal: Stop
+                holdCurrentPositionCommand();
+        }
+    }
     // return new Pose3d(0.168, 0, 0.247, new Rotation3d());
     // -0.083
 
@@ -158,6 +207,7 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
     @Log
     @Override
     public double getPosition() {
+        
         return motor.getEncoder().getPosition();
     }
 
@@ -178,11 +228,11 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
     @Override
     public void setVoltage(double voltage) {
         voltage = MathUtil.clamp(voltage, -12, 12);
-        voltage = Utils.applySoftStops(voltage, getPosition(), Constants.Arm.MIN_ANGLE_RADIANS, Constants.Arm.MAX_ANGLE_RADIANS);
+        voltage = Utils.applySoftStops(voltage, getPosition(), Constants.CoralArm.MIN_ANGLE_RADIANS, Constants.CoralArm.MAX_ANGLE_RADIANS);
 
         if (voltage < 0
                 && getPosition() < 0
-                && positionTracker.getElevatorPosition() < Constants.ElevatorConstants.MOTION_LIMIT) {
+                && positionTracker.getElevatorPosition() < Constants.CoralArm.MOTION_LIMIT) {
             voltage = 0;
         }
 

@@ -61,7 +61,8 @@ public class RobotContainer {
           new Color8Bit(Color.kRed)));
   Elevator elevator = new Elevator(positionTracker, elevatorLigament);
   Arm arm = new Arm(positionTracker, armLigament, elevator::getCarriageComponentPose);
-  //CoralSim coralSim = new CoralSim(drivetrain::getPose, arm::getClawComponentPose);
+  // CoralSim coralSim = new CoralSim(drivetrain::getPose,
+  // arm::getClawComponentPose);
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -81,7 +82,6 @@ public class RobotContainer {
     configureBindings();
     configureAutoChooser(); // add autonomous options
     SmartDashboard.putData("Autonomous Chooser", autoChooser);
-    
 
   }
 
@@ -98,8 +98,9 @@ public class RobotContainer {
     // THE INVERTING SYSTEM IS USING THE SPEED NOB WHEN ITS DOWN ITS FACING FORWARD,
     // BUT WHEN ITS UPWARDS IT WILL SWITCH YOUR FRONT SIDE
     driveSubsystem.setDefaultCommand(
-        driveSubsystem.driveArcade(
-            driveSubsystem, () -> -driverController.getRawAxis(0) * driverController.getRawAxis(3),
+        driveSubsystem.driveArcade( // First argument is always the turn (x).
+            driveSubsystem,
+            () -> -driverController.getRawAxis(2 /* 0 is og rotate, not twist */) * driverController.getRawAxis(3),
             () -> -driverController.getRawAxis(1) * driverController.getRawAxis(3)));
 
     elevator.setDefaultCommand(elevator.moveToCurrentGoalCommand());
@@ -128,19 +129,25 @@ public class RobotContainer {
     new JoystickButton(driverController, OperatorConstants.armDown)
         .whileTrue(algaeArm.ArmDown());
 
-    new JoystickButton(driverController, OperatorConstants.elevatorToL1)
-        .onTrue(elevator.prepareCoralScoreCommand(ScoreLevel.L1, elevator).withName("MoveElevatorToL1"));
+    new JoystickButton(driverController, OperatorConstants.elevatorToL3)
+        .onTrue(elevator.prepareCoralScoreCommand(ScoreLevel.L3, elevator, arm).withName("MoveElevatorToL3"));
 
-   new JoystickButton(driverController, OperatorConstants.elevatorToL2)
-        .onTrue(elevator.moveToPositionCommand(() -> ElevatorPosition.L2));
+    new JoystickButton(driverController, OperatorConstants.elevatorToL2)
+        .onTrue(elevator.prepareCoralScoreCommand(ScoreLevel.L2, elevator, arm).withName("MoveElevatorToL2"));
 
-    new JoystickButton(driverController, OperatorConstants.resetLiftToBottomPosition)
-        .onTrue(elevator.moveToPositionCommand(() -> ElevatorPosition.BOTTOM));
+    new JoystickButton(driverController, OperatorConstants.coralToReefAutomated)
+        .onTrue(armRoller.runForwardAndReverseTimed(0.5, 1));
 
+    new Trigger(() -> driverController.getPOV() == 0).whileTrue(arm.armUpCommand()) ;
+
+    new Trigger(() -> driverController.getPOV() == 180).whileTrue(arm.armDownCommand()) ;
+
+    new Trigger(() -> driverController.getPOV() == -1).whileTrue(arm.armMotorStop()) ;
+
+
+    // 2s forward, 1s reverse
     // new JoystickButton(driverController, OperatorConstants.armDownDebouncer)
     // .whileTrue(algaeArm.runDebounceArmDownCmd());
-
-
 
   }
 
