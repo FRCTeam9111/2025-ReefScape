@@ -375,9 +375,9 @@ SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint
             // Move elevator to TOP position
             elevator.moveToPositionCommand(() -> ElevatorConstants.ElevatorPosition.TOP),
             // Move arm to BOTTOM position
-            arm.moveToPositionCommand(() -> CoralArm.ArmPosition.L2),
+            arm.moveToPositionCommand(() -> CoralArm.ArmPosition.BOTTOM),
             // Final elevator position adjustment
-            elevator.moveToPositionCommand(() -> ElevatorConstants.ElevatorPosition.TOP)
+            elevator.moveToPositionCommand(() -> ElevatorConstants.ElevatorPosition.L2)
         ).withName("intakeIntoScore");
     }
 
