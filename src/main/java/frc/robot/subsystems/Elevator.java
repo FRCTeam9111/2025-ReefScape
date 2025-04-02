@@ -225,7 +225,6 @@ public class Elevator extends SubsystemBase implements BaseLinearMechanism<Eleva
 
     @Override
     public void setVoltage(double voltage) {
-        System.out.println("in setVoltage");
         voltage = MathUtil.clamp(voltage, -12, 12);
         voltage = Utils.applySoftStops(voltage, getPosition(), ElevatorConstants.MIN_HEIGHT_METERS, ElevatorConstants.MAX_HEIGHT_METERS);
 
@@ -407,7 +406,7 @@ SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint
                                 .andThen(elevator.moveToPositionCommand(() -> elevatorPosition).asProxy())));
     }
 
-    public static Command intakeIntoScoreCommand(Elevator elevator, Arm arm) {
+    public Command intakeIntoScoreCommand(Elevator elevator, Arm arm) {
         return Commands.sequence(
             arm.moveToPositionCommand(() -> CoralArm.ArmPosition.TOP),
             // Move elevator to TOP position

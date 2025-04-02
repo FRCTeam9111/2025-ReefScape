@@ -89,7 +89,7 @@ public final class Constants {
     public static final double ROLLER_EJECT_VALUE = 0.44;
 
     public static final double rollerGamePieceInSpeed = -0.8;
-    public static final double rollerCoralOutSpeed = 0.5;
+    public static final double rollerCoralOutSpeed = 1;
   }
 
   public static final class ElevatorConstants {
@@ -152,14 +152,14 @@ public final class Constants {
   //Coral Arm
   public static final class CoralArm {
     public static enum ArmPosition {
-      BOTTOM(-Math.PI / 2.0 + Units.degreesToRadians(95)),
+      BOTTOM(-Math.PI / 2.0 + Units.degreesToRadians(-85)),
       //BOTTOM(0), 
       HORIZONTAL(0),
       L1(0),
       L2(-Units.degreesToRadians(55)), // reef angle
       L3(-Units.degreesToRadians(55)),
       L4(1.033),
-      TOP(Math.PI / 2.0);
+      TOP(Math.PI / 2.0 - Units.degreesToRadians((30)));
       //TOP(0);//-1.234
 
       public final double value;
@@ -187,19 +187,19 @@ public final class Constants {
 
     public static final int CURRENT_LIMIT = 50;
 
-    public static final double kP = 5; // TODO
+    public static final double kP = 10; // TODO
     public static final double kI = 0; // TODO
     public static final double kD = 0; // TODO
     public static final double  kS= 0.017964; // TODO
     public static final double kG = 0.321192; // TODO
-    //public static final double kV = 0.876084;// TODO
-    public static final double kV = 0.5;
-    //public static final double kA = 0.206676;// TODO
-    public static final double kA = 0.1;
-    public static final double TOLERANCE = 0.1;//0.02
+    public static final double kV = 0.876084;// TODO
+    //public static final double kV = 0.5;
+    public static final double kA = 0.206676;// TODO
+    //public static final double kA = 0.1;
+    public static final double TOLERANCE = 0.05;//0.02
 
-    public static final double MAX_VELOCITY_METERS_PER_SECOND = 2; // TODO
-    public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 1; // TODO
+    public static final double MAX_VELOCITY_METERS_PER_SECOND = 8; // TODO
+    public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 4; // TODO
     public static final TrapezoidProfile.Constraints MOVEMENT_CONSTRAINTS = new TrapezoidProfile.Constraints(
         MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
   }
