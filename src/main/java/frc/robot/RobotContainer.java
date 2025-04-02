@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -152,8 +153,9 @@ public class RobotContainer {
                 .onTrue(armRoller.loadCoralCommand(0.2));
 
         new JoystickButton(driverController, OperatorConstants.scoreL1Coral)
-                .whileTrue(armRoller.runRollerForward());
-
+                .onTrue(Commands.parallel(armRoller.runRollerForward().withTimeout(1.),
+                 algaeArm.ArmDown().withTimeout(0.5)));
+                
         new Trigger(() -> driverController.getPOV() == 0).whileTrue(arm.armUpCommand());
 
         new Trigger(() -> driverController.getPOV() == 180).whileTrue(arm.armDownCommand());

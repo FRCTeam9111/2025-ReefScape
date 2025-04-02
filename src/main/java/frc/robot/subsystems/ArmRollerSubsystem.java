@@ -130,5 +130,21 @@ public class ArmRollerSubsystem extends SubsystemBase {
         .finallyDo((interrupted) -> stopRollerMotor())
         .withName("Roller/CMD/runForwardAndReverseTimed");
     }
+
+    /*public Command scoreLevel1Command(AlgaeArm arm) {
+      return Commands.parallel(
+        Commands.startEnd(
+                this::runRollerMotorForward, 
+                () -> {}, // Empty end action
+                this
+            ).withTimeout(.3),
+        Commands.startEnd(
+              arm.ArmDown(), 
+              () -> {}, // Empty end action
+              this
+          ).withTimeout(.3)
+      )
+    }
+      */
   }
 
