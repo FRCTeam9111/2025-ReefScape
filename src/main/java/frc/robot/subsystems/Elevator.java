@@ -416,7 +416,10 @@ SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint
             // Final elevator position adjustment
             elevator.moveToPositionCommand(() -> ElevatorConstants.ElevatorPosition.INTAKE),
 
-            elevator.moveToPositionCommand(() -> ElevatorConstants.ElevatorPosition.TOP)
+            elevator.moveToPositionCommand(() -> ElevatorConstants.ElevatorPosition.INTAKE_TOP)
+        
+            
+            
         ).withName("intakeIntoScore");
     }
 

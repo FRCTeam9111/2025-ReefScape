@@ -131,6 +131,8 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
 
         positionTracker.setArmAngleSupplier(this::getPosition);
 
+        //resetControllersCommand();
+
         //motor.getEncoder().setPosition(0.0);
 
        // setDefaultCommand(moveToCurrentGoalCommand().beforeStarting(Commands.runOnce(() -> pidController.reset(getPosition()))));
@@ -163,7 +165,8 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
      }
 
     private void runArmUp() {
-        moveToPositionCommand(() -> CoralArm.ArmPosition.TOP);
+        //moveToPositionCommand(() -> CoralArm.ArmPosition.TOP);
+        motor.set(Math.abs(.1));
       }
     
     private void stopArmMotor()

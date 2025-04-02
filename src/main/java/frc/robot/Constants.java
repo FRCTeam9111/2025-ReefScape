@@ -104,7 +104,8 @@ public final class Constants {
       L2(0.0),
       L3(0.367),
       L4(1.27),
-      TOP(0.78);//Intake 0.386
+      TOP(0.78),//Intake 0.386
+      INTAKE_TOP(0.6736);
 
       public final double value;
 
@@ -152,15 +153,15 @@ public final class Constants {
   //Coral Arm
   public static final class CoralArm {
     public static enum ArmPosition {
-      BOTTOM(-Math.PI / 2.0 + Units.degreesToRadians(-85)),
-      //BOTTOM(0), 
+      BOTTOM(-Math.PI / 2.0 + Units.degreesToRadians(-5)),
+      //BOTTOM(-Math.PI / 2.0), 
       HORIZONTAL(0),
       L1(0),
       L2(-Units.degreesToRadians(55)), // reef angle
-      L3(-Units.degreesToRadians(55)),
+      L3(-Units.degreesToRadians(-45)),
       L4(1.033),
-      TOP(Math.PI / 2.0 - Units.degreesToRadians((30)));
-      //TOP(0);//-1.234
+      //TOP(Math.PI / 2.0 - Units.degreesToRadians((30)));
+      TOP(Math.PI / 2.0);
 
       public final double value;
 
