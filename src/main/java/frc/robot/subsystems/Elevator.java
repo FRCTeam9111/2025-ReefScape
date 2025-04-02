@@ -409,6 +409,7 @@ SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint
 
     public static Command intakeIntoScoreCommand(Elevator elevator, Arm arm) {
         return Commands.sequence(
+            arm.moveToPositionCommand(() -> CoralArm.ArmPosition.TOP),
             // Move elevator to TOP position
             elevator.moveToPositionCommand(() -> ElevatorConstants.ElevatorPosition.TOP),
             // Move arm to BOTTOM position
