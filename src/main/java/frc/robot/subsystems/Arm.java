@@ -129,6 +129,8 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
 
         positionTracker.setArmAngleSupplier(this::getPosition);
 
+        motor.getEncoder().setPosition(0.0);
+
        // setDefaultCommand(moveToCurrentGoalCommand().beforeStarting(Commands.runOnce(() -> pidController.reset(getPosition()))));
     }
 
@@ -324,6 +326,7 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
                 .andThen(Commands.runOnce(() -> pidController.setGoal(getPosition())));
     }
 
+    @Log(name = "armAtGoal")
     public boolean atGoal() {
         return pidController.atGoal();
     }

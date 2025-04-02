@@ -51,6 +51,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import frc.robot.ScoreLevel;
 import frc.robot.CoralSim;
+import frc.robot.CoralSim.CoralSimLocation;
 
 
 @Logged
@@ -352,6 +353,10 @@ SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint
                 elevatorPosition = ElevatorPosition.L4;
                 armPosition = ArmPosition.L4;
             }
+            case TOP -> {
+                elevatorPosition = ElevatorPosition.TOP;
+                armPosition = ArmPosition.L3;
+            }
             default -> {
                 throw new IllegalArgumentException("Invalid ScoreLevel");
             }
@@ -364,4 +369,16 @@ SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint
                         Commands.waitSeconds(0.5)
                                 .andThen(elevator.moveToPositionCommand(() -> elevatorPosition).asProxy())));
     }
+
+    public static Command intakeIntoScoreCommand(Elevator elevator, Arm arm) {
+        return Commands.sequence(
+            // Move elevator to TOP position
+            elevator.moveToPositionCommand(() -> ElevatorConstants.ElevatorPosition.TOP),
+            // Move arm to BOTTOM position
+            arm.moveToPositionCommand(() -> CoralArm.ArmPosition.BOTTOM),
+            // Final elevator position adjustment
+            elevator.moveToPositionCommand(() -> ElevatorConstants.ElevatorPosition.TOP)
+        ).withName("intakeIntoScore");
+    }
+
 }

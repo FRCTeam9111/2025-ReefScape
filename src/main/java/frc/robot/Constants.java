@@ -57,16 +57,18 @@ public final class Constants {
 
   public static class OperatorConstants {
     public static final int DRIVER_CONTROLLER_PORT = 0;
-    public static final int coralToReefAutomated = 1;
+    public static final int coralToReefAutomated = 2;
     public static final int coralToReef = 5;
     public static final int intakeGamePiece = 3;
     public static final int armUp = 6;
     public static final int armDown = 4;
     // public static final int armDownDebouncer = 7;
-    public static final int elevatorToL1 = 9;
+    //public static final int elevatorToL1 = 9;
     public static final int elevatorToL2 = 7;
-    // public static final int elevatorToTop = 8;
     public static final int elevatorToL3 = 8;
+    public static final int elevatorToTop = 9;
+    public static final int scoreL1Coral = 1;
+
 
   }
 
@@ -102,7 +104,7 @@ public final class Constants {
       L2(0.0),
       L3(0.367),
       L4(1.27),
-      TOP(1.57);
+      TOP(0.78);//Intake 0.386
 
       public final double value;
 

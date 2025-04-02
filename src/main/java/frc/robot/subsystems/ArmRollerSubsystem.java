@@ -91,7 +91,19 @@ public class ArmRollerSubsystem extends SubsystemBase {
                     .withName("Roller/CMD/runRollerReverse");
       }
 
-
+      public Command loadCoralCommand(double reverseSeconds) {
+        return Commands.sequence(
+            // Run reverse for `reverseSeconds`, then stop the command (but not the motor)
+            Commands.startEnd(
+                this::runRollerMotorReverse, 
+                () -> {}, // Empty end action (don't stop the motor)
+                this
+            ).withTimeout(reverseSeconds)
+        )
+        // Stop the motor after the entire sequence
+        .finallyDo((interrupted) -> stopRollerMotor())
+        .withName("Roller/CMD/loadCoral");
+    }
     
       public Command runRollerStop() {
         return this.runOnce(this::stopRollerMotor)

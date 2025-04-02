@@ -135,8 +135,19 @@ public class RobotContainer {
     new JoystickButton(driverController, OperatorConstants.elevatorToL2)
         .onTrue(elevator.prepareCoralScoreCommand(ScoreLevel.L2, elevator, arm).withName("MoveElevatorToL2"));
 
-    new JoystickButton(driverController, OperatorConstants.coralToReefAutomated)
-        .onTrue(armRoller.runForwardAndReverseTimed(0.5, 1));
+     new JoystickButton(driverController, OperatorConstants.elevatorToTop)
+        .onTrue(elevator.intakeIntoScoreCommand(elevator, arm).withName("MoveElevatorToIntake"));
+
+    /*new JoystickButton(driverController, OperatorConstants.coralToReefAutomated)
+        .onTrue(armRoller.runForwardAndReverseTimed(0.2, 1));*/
+
+        new JoystickButton(driverController, OperatorConstants.coralToReefAutomated)
+        .onTrue(armRoller.loadCoralCommand(0.2));
+
+        new JoystickButton(driverController, OperatorConstants.scoreL1Coral)
+        .whileTrue(armRoller.runRollerForward());
+
+    
 
     new Trigger(() -> driverController.getPOV() == 0).whileTrue(arm.armUpCommand()) ;
 
