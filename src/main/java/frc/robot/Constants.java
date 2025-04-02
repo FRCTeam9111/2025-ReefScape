@@ -152,14 +152,14 @@ public final class Constants {
   //Coral Arm
   public static final class CoralArm {
     public static enum ArmPosition {
-      BOTTOM(-Math.PI / 2.0 + Units.degreesToRadians(5)),
+      BOTTOM(-Math.PI / 2.0 + Units.degreesToRadians(5)), 
       HORIZONTAL(0),
       L1(0),
-      L2(Units.degreesToRadians(55)), // reef angle
-      L3(Units.degreesToRadians(55)),
+      L2(-Units.degreesToRadians(55)), // reef angle
+      L3(-Units.degreesToRadians(55)),
       L4(1.033),
       TOP(Math.PI / 2.0);
-      //TOP(0);
+      //TOP(0);//-1.234
 
       public final double value;
 
