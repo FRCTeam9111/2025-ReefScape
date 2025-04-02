@@ -38,7 +38,9 @@ import frc.robot.Constants.CoralArm.*;
 import frc.robot.PositionTracker;
 import frc.robot.subsystems.ArmRollerSubsystem.RollerState;
 import frc.robot.Constants.CoralArm.ArmPosition;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ArmRollerConstants;
+import frc.robot.Constants.CoralArm;
 import frc.robot.GlobalStates;
 
 import static edu.wpi.first.units.Units.Radians;
@@ -156,8 +158,12 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
          motor.set(-Math.abs(.1));
       }
 
-    private void runArmMotorForward() {
+      private void runArmMotorForward() {
         motor.set(Math.abs(.1));
+     }
+
+    private void runArmUp() {
+        moveToPositionCommand(() -> CoralArm.ArmPosition.TOP);
       }
     
     private void stopArmMotor()
@@ -170,8 +176,8 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
       }
 
     public Command armUpCommand()
-    {
-        return this.startEnd(this::runArmMotorForward, this::stopArmMotor );
+    {  
+        return this.startEnd(this::runArmUp, this::stopArmMotor);
     }
 
     public Command armDownCommand()
