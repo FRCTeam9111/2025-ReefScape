@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.PositionTracker;
 import frc.robot.Robot;
 import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.CoralArm;
 import frc.robot.Constants.CoralArm.*;
 import frc.robot.GlobalStates;
@@ -50,6 +51,7 @@ import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import frc.robot.ScoreLevel;
+import frc.robot.subsystems.AlgaeArm.ArmState;
 import frc.robot.CoralSim;
 import frc.robot.CoralSim.CoralSimLocation;
 
@@ -331,6 +333,41 @@ SmartDashboard.putNumber("Elevator/Setpoint Velocity", pidController.getSetpoint
     public boolean atGoal() {
         return pidController.atGoal();
     }
+
+    public void moveElevatorUp()
+    {
+        motor.set(ArmConstants.ARM_SPEED_UP);
+       
+    }
+
+    public void armHoldUp()
+    {
+        motor.set(ArmConstants.ARM_HOLD_UP);
+
+    }
+    public void moveElevatorDown()
+    {
+        motor.set(ArmConstants.ARM_SPEED_DOWN);
+
+    }
+
+    public void armHoldDown()
+    {
+        motor.set(ArmConstants.ARM_HOLD_DOWN);
+    }
+
+
+    public Command moveElevatorUpoCommand()
+    {
+        return this.startEnd(this::moveElevatorUp, this::armHoldUp);
+    }
+
+
+    public Command moveElevatorDownCommand()
+    {
+        return this.startEnd(this::moveElevatorDown, this::armHoldDown);
+    }
+
 
     public Command prepareCoralScoreCommand(ScoreLevel level, Elevator elevator, Arm arm) {
         ElevatorPosition elevatorPosition;
