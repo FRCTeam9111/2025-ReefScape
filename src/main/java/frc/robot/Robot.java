@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.logging.errors.ErrorHandler;
@@ -47,6 +48,8 @@ public class Robot extends TimedRobot {
     Epilogue.bind(this);
 
     GlobalStates.INITIALIZED.enableCommand().schedule();
+    CameraServer.startAutomaticCapture();
+    
 
 
   }
