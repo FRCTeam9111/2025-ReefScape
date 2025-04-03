@@ -58,7 +58,7 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int DRIVER_CONTROLLER_PORT = 0;
     public static final int coralToReefAutomated = 2;
-    public static final int coralToReef = 5;
+    public static final int coralToReef = 1;
     public static final int intakeGamePiece = 3;
     public static final int armUp = 6;
     public static final int armDown = 4;
@@ -67,7 +67,8 @@ public final class Constants {
     public static final int elevatorToL2 = 7;
     public static final int elevatorToL3 = 8;
     public static final int elevatorToTop = 9;
-    public static final int scoreL1Coral = 1;
+    public static final int scoreL1Coral = 5;
+    public static final int resetArm = 11;
 
 
   }
@@ -153,12 +154,12 @@ public final class Constants {
   //Coral Arm
   public static final class CoralArm {
     public static enum ArmPosition {
-      BOTTOM(-Math.PI / 2.0 + Units.degreesToRadians(-5)),
+      BOTTOM(-Math.PI / 2.0 /*+ Units.degreesToRadians()*/),
       //BOTTOM(-Math.PI / 2.0), 
       HORIZONTAL(0),
       L1(0),
-      L2(-Units.degreesToRadians(55)), // reef angle
-      L3(-Units.degreesToRadians(-45)),
+      L2(Units.degreesToRadians(60)), // reef angle
+      L3(Units.degreesToRadians(60)),
       L4(1.033),
       //TOP(Math.PI / 2.0 - Units.degreesToRadians((30)));
       TOP(Math.PI / 2.0);
@@ -197,7 +198,7 @@ public final class Constants {
     //public static final double kV = 0.5;
     public static final double kA = 0.206676;// TODO
     //public static final double kA = 0.1;
-    public static final double TOLERANCE = 0.05;//0.02
+    public static final double TOLERANCE = 0.02;//0.02
 
     public static final double MAX_VELOCITY_METERS_PER_SECOND = 8; // TODO
     public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 4; // TODO

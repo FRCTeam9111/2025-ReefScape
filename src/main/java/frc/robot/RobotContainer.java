@@ -155,6 +155,9 @@ public class RobotContainer {
         new JoystickButton(driverController, OperatorConstants.scoreL1Coral)
                 .onTrue(Commands.parallel(armRoller.runRollerForward().withTimeout(1.),
                  algaeArm.ArmDown().withTimeout(0.5)));
+
+        new JoystickButton(driverController, OperatorConstants.scoreL1Coral)
+                 .onTrue(arm.resetPositionCommand());
                 
         new Trigger(() -> driverController.getPOV() == 0).whileTrue(arm.armUpCommand());
 

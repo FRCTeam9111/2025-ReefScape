@@ -272,7 +272,7 @@ public class Arm extends SubsystemBase implements BaseSingleJointedArm<ArmPositi
                 runOnce(() -> pidController.setGoal(goalPositionSupplier.get().value)),
                 moveToCurrentGoalCommand()
                         .until(() -> pidController.atGoal()))
-                .withTimeout(3)
+                .withTimeout(1.5)
                 .withName("arm.moveToPosition");
     }
 
