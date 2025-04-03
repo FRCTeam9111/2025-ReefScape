@@ -19,8 +19,8 @@ public final class Autos {
 
   public static final Command doNothing()
   {
-    return null;
-
+    //return null;
+    return Commands.none(); // A valid "do nothing" command
   }
 
   public static final Command driveArcadeCmd(DriveSubsystem driveSubsystem) {
