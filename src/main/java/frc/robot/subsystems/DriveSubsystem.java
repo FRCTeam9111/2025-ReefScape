@@ -14,6 +14,7 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.epilogue.Logged;
@@ -23,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Robot;;
+import frc.robot.Robot;
 
 @Logged
 public class DriveSubsystem extends SubsystemBase {
@@ -74,9 +75,13 @@ public class DriveSubsystem extends SubsystemBase {
 
     leftLeaderConfig.apply(globalConfig);
 
+    rightLeaderConfig.inverted(false);
+    leftLeaderConfig.inverted(true);
+
     leftFollowerConfig.apply(globalConfig).follow(leftLeader);
 
     rightFollowerConfig.apply(globalConfig).follow(rightLeader);
+
 
 
 
