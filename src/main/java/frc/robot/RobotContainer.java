@@ -42,7 +42,7 @@ import edu.wpi.first.math.util.Units;
 @Logged
 public class RobotContainer {
     // The robot's subsystems and commands are defined here...
-    private final DriveSubsystem driveSubsystem = new DriveSubsystem();
+    public final DriveSubsystem driveSubsystem = new DriveSubsystem();
 
     @Logged(name = "ArmRoller")
     public final ArmRollerSubsystem armRoller = new ArmRollerSubsystem(); // Rename the rollersubsystem class to

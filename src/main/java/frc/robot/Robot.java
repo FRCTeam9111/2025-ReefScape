@@ -89,6 +89,7 @@ public void robotInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
+    m_robotContainer.driveSubsystem.invertLeft(true).schedule();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
@@ -107,6 +108,9 @@ public void robotInit() {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    m_robotContainer.driveSubsystem.invertLeft(false).schedule();
+    
   }
 
   /** This function is called periodically during operator control. */

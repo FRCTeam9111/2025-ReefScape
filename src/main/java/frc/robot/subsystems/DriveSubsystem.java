@@ -19,6 +19,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -120,6 +121,7 @@ public class DriveSubsystem extends SubsystemBase {
 
 
 
+
     resetEncoders();
 
   }
@@ -146,10 +148,13 @@ public class DriveSubsystem extends SubsystemBase {
     ioInfo.leftAppliedVolts = leftLeader.getAppliedOutput();
     ioInfo.leftCurrentAmps = leftLeader.getOutputCurrent();
 
+
+
     ioInfo.rightPositionInMeters = rightLeader.getEncoder().getPosition();
     ioInfo.rightVelocityInMetersPerSec = rightLeader.get();
     ioInfo.rightAppliedVolts = rightLeader.getAppliedOutput();
     ioInfo.rightCurrentAmps = rightLeader.getOutputCurrent();  
+
   }
 
   public void setVelocity(double leftVelocity, double rightVelocity) {
@@ -228,4 +233,9 @@ public class DriveSubsystem extends SubsystemBase {
       .andThen(this::stop)
       .withName("Drive/CMD/driveFwd");
   }
+
+  public Command invertLeft(boolean inverted) {
+    return Commands.runOnce(() -> leftLeader.setInverted(inverted));
+  }
+
 }
