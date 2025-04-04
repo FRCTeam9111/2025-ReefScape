@@ -177,7 +177,7 @@ public class RobotContainer {
         // autoChooser.addOption
         autoChooser.setDefaultOption("Do Nothing", Autos.doNothing());
         autoChooser.addOption("Arcade Drive (no rotation @ 50%)", Autos.driveArcadeCmd(driveSubsystem));
-        autoChooser.addOption("Drive FWD 3 meters", Autos.driveFwd3meters(driveSubsystem));
+        autoChooser.addOption("Drive FWD 3 meters", Autos.driveFwdmeters(driveSubsystem));
         autoChooser.addOption("Reset Encoders", Autos.resetEncoders(driveSubsystem));
     }
 

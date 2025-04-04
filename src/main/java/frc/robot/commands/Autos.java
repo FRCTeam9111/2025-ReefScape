@@ -7,6 +7,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.AlgaeArm;
+import frc.robot.subsystems.ArmRollerSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 
 public final class Autos {
@@ -32,8 +34,12 @@ public final class Autos {
    return Commands.run( () -> driveSubsystem.resetEncoders() );
   }
 
-  public static final Command driveFwd3meters(DriveSubsystem driveSubsystem) {
-    return driveSubsystem.driveFwdInMetersCmd(driveSubsystem, () -> 2.0);
+  public static final Command driveFwdmeters(DriveSubsystem driveSubsystem, ArmRollerSubsystem armRoller, AlgaeArm algaeArm) {
+    return Commands.sequence(
+      driveSubsystem.driveFwdInMetersCmd(driveSubsystem, () -> 2.235),
+      Commands.parallel(armRoller.runRollerForward().withTimeout(1.),
+                 algaeArm.ArmDown().withTimeout(0.5))
+    );
   }
 
 }
