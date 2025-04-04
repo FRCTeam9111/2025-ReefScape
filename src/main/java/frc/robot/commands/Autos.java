@@ -33,7 +33,7 @@ public final class Autos {
   }
 
   public static final Command driveFwd3meters(DriveSubsystem driveSubsystem) {
-    return driveSubsystem.driveFwdInMetersCmd(driveSubsystem, () -> 3.0);
+    return driveSubsystem.driveFwdInMetersCmd(driveSubsystem, () -> 2.0);
   }
 
 }
