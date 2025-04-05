@@ -153,8 +153,8 @@ public class RobotContainer {
                 .onTrue(armRoller.loadCoralCommand(0.2));
 
         new JoystickButton(driverController, OperatorConstants.scoreL1Coral)
-                .onTrue(Commands.parallel(armRoller.runRollerForward().withTimeout(1.),
-                 algaeArm.ArmDown().withTimeout(0.5)));
+                .onTrue(Commands.sequence(armRoller.runRollerForward().withTimeout(1),
+                 algaeArm.ArmDown().withTimeout(1.0)));
 
         new JoystickButton(driverController, OperatorConstants.scoreL1Coral)
                  .onTrue(arm.resetPositionCommand());
@@ -177,7 +177,7 @@ public class RobotContainer {
         // autoChooser.addOption
         autoChooser.setDefaultOption("Do Nothing", Autos.doNothing());
         autoChooser.addOption("Arcade Drive (no rotation @ 50%)", Autos.driveArcadeCmd(driveSubsystem));
-        autoChooser.addOption("Drive FWD 3 meters", Autos.driveFwdmeters(driveSubsystem));
+        autoChooser.addOption("Drive FWD 2.3 meters", Autos.driveFwdmeters(driveSubsystem, armRoller, algaeArm));
         autoChooser.addOption("Reset Encoders", Autos.resetEncoders(driveSubsystem));
     }
 
