@@ -36,10 +36,12 @@ public final class Autos {
 
   public static final Command driveFwdmeters(DriveSubsystem driveSubsystem, ArmRollerSubsystem armRoller, AlgaeArm algaeArm) {
      return Commands.sequence(
-       driveSubsystem.driveFwdInMetersCmd(driveSubsystem, () -> 2.3),
+       driveSubsystem.driveFwdInSecondsCmd(driveSubsystem, 5),
        Commands.parallel(armRoller.runRollerForward().withTimeout(1.),
-                  algaeArm.ArmDown().withTimeout(0.5))
-
+                 Commands.sequence(
+                        Commands.waitSeconds(0.1),
+                        algaeArm.ArmDown().withTimeout(.5)
+                 ))
     );
  // public static final Command driveFwd3meters(DriveSubsystem driveSubsystem) {
   //  return driveSubsystem.driveFwdInMetersCmd(driveSubsystem, () -> 2.0);

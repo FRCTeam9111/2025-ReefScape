@@ -153,8 +153,11 @@ public class RobotContainer {
                 .onTrue(armRoller.loadCoralCommand(0.2));
 
         new JoystickButton(driverController, OperatorConstants.scoreL1Coral)
-                .onTrue(Commands.sequence(armRoller.runRollerForward().withTimeout(1),
-                 algaeArm.ArmDown().withTimeout(1.0)));
+                .onTrue(Commands.parallel(armRoller.runRollerForward().withTimeout(1.),
+                 Commands.sequence(
+                        Commands.waitSeconds(0.1),
+                        algaeArm.ArmDown().withTimeout(.5)
+                 )));
 
         new JoystickButton(driverController, OperatorConstants.scoreL1Coral)
                  .onTrue(arm.resetPositionCommand());

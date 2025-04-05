@@ -18,6 +18,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -39,8 +40,6 @@ public class DriveSubsystem extends SubsystemBase {
    // setup closed loop controller
   private final SparkClosedLoopController leftController;
   private final SparkClosedLoopController rightController;
-
- 
 
   //@Logged(name="Differential Drive")
   private final DifferentialDrive drive;
@@ -163,12 +162,6 @@ public class DriveSubsystem extends SubsystemBase {
     
   }
 
-  public BooleanSupplier isAtDistance(double desiredDistanceInMeters) {
-    return () -> ((Math.abs(leftLeader.getEncoder().getPosition()) >= desiredDistanceInMeters) || 
-                  (Math.abs(rightLeader.getEncoder().getPosition()) >= desiredDistanceInMeters)); 
-  }
-
-
   public void resetEncoders() {
     
     // note in simulation there is a small drift 
@@ -224,12 +217,12 @@ public class DriveSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run during simulation
   }
 
-  public Command driveFwdInMetersCmd(DriveSubsystem driveSubsystem, DoubleSupplier distanceInMeters) {
+  public Command driveFwdInSecondsCmd(DriveSubsystem driveSubsystem, float seconds) {
     return Commands.startRun(
       this::resetEncoders, 
       () -> this.setVelocity(DriveConstants.walkingSpeedMetersPerSec, DriveConstants.walkingSpeedMetersPerSec), 
       driveSubsystem)
-      .until(this.isAtDistance(distanceInMeters.getAsDouble()))
+      .withTimeout(seconds)
       .andThen(this::stop)
       .withName("Drive/CMD/driveFwd");
   }
