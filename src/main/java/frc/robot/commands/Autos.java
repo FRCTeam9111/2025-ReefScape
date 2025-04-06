@@ -36,6 +36,7 @@ public final class Autos {
 
   public static final Command driveFwdmeters(DriveSubsystem driveSubsystem, ArmRollerSubsystem armRoller, AlgaeArm algaeArm) {
      return Commands.sequence(
+      algaeArm.ArmUp().withTimeout(.3),
        driveSubsystem.driveFwdInSecondsCmd(driveSubsystem, 5),
        Commands.parallel(armRoller.runRollerForward().withTimeout(1.),
                  Commands.sequence(
