@@ -103,7 +103,7 @@ public class RobotContainer {
         driveSubsystem.setDefaultCommand(
                 driveSubsystem.driveArcade( // First argument is always the turn (x).
                         driveSubsystem,
-                        () -> -driverController.getRawAxis(0) * .9,
+                        () -> -driverController.getRawAxis(0) * driverController.getRawAxis(3),
                         () -> -driverController.getRawAxis(1) * driverController.getRawAxis(3)));
 
         elevator.setDefaultCommand(elevator.moveToCurrentGoalCommand());

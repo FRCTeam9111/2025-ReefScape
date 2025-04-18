@@ -227,6 +227,20 @@ public class DriveSubsystem extends SubsystemBase {
       .withName("Drive/CMD/driveFwd");
   }
 
+
+
+  public Command driveBackInSecondsCmd(DriveSubsystem driveSubsystem, float seconds) {
+    return Commands.startRun(
+      this::resetEncoders, 
+      () -> this.setVelocity(-DriveConstants.walkingSpeedMetersPerSec, -DriveConstants.walkingSpeedMetersPerSec), 
+      driveSubsystem)
+      .withTimeout(seconds)
+      .andThen(this::stop)
+      .withName("Drive/CMD/driveFwd");
+  }
+
+
+
   public Command invertLeft(boolean inverted) {
     return Commands.runOnce(() -> leftLeader.setInverted(inverted));
   }

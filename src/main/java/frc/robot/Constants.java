@@ -40,7 +40,7 @@ public final class Constants {
     public static final double wheelCircumferenceMeters = Units.inchesToMeters(wheelCircumferenceInches);
 
     // speed references meters/sec
-    public static final double walkingSpeedMetersPerSec = 2.0;
+    public static final double walkingSpeedMetersPerSec = 3.0;
     public static final double maxSpeedMetersPerSec = 3.0; // FIXME
     public static final int kEncoderCountsPerRevolution = 2048 * 4; // one rotation is 8192 ticks of the hardware
                                                                     // encoder
@@ -77,7 +77,7 @@ public final class Constants {
     public static final int ARM_MOTOR_ID = 5;
     public static final int ARM_MOTOR_CURRENT_LIMIT = 9;
     public static final double ARM_MOTOR_VOLTAGE_COMP = 10;
-    public static final double ARM_SPEED_DOWN = -0.5;
+    public static final double ARM_SPEED_DOWN = -0.8;
     public static final double ARM_SPEED_UP = 0.5;
     public static final double ARM_HOLD_DOWN = 0.0;
     public static final double ARM_HOLD_UP = -0.0;
