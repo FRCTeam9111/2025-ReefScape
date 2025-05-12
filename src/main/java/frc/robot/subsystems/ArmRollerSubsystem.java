@@ -91,11 +91,60 @@ public class ArmRollerSubsystem extends SubsystemBase {
                     .withName("Roller/CMD/runRollerReverse");
       }
 
-
+      public Command loadCoralCommand(double reverseSeconds) {
+        return Commands.sequence(
+            // Run reverse for `reverseSeconds`, then stop the command (but not the motor)
+            Commands.startEnd(
+                this::runRollerMotorReverse, 
+                () -> {}, // Empty end action (don't stop the motor)
+                this
+            ).withTimeout(reverseSeconds)
+        )
+        // Stop the motor after the entire sequence
+        .finallyDo((interrupted) -> stopRollerMotor())
+        .withName("Roller/CMD/loadCoral");
+    }
     
       public Command runRollerStop() {
         return this.runOnce(this::stopRollerMotor)
                     .withName("Roller/CMD/runRollerStop");
       }
+
+
+      public Command runForwardAndReverseTimed(double reverseSeconds, double forwardSeconds) {
+        return Commands.sequence(
+            // Run reverse for `reverseSeconds`, then stop the command (but not the motor)
+            Commands.startEnd(
+                this::runRollerMotorReverse, 
+                () -> {}, // Empty end action (don't stop the motor)
+                this
+            ).withTimeout(reverseSeconds),
+            // Run reverse for `reverseSeconds`, then stop the command
+            Commands.startEnd(
+                this::runRollerMotorForward, 
+                () -> {}, // Empty end action
+                this
+            ).withTimeout(forwardSeconds)
+        )
+        // Stop the motor after the entire sequence
+        .finallyDo((interrupted) -> stopRollerMotor())
+        .withName("Roller/CMD/runForwardAndReverseTimed");
+    }
+
+    /*public Command scoreLevel1Command(AlgaeArm arm) {
+      return Commands.parallel(
+        Commands.startEnd(
+                this::runRollerMotorForward, 
+                () -> {}, // Empty end action
+                this
+            ).withTimeout(.3),
+        Commands.startEnd(
+              arm.ArmDown(), 
+              () -> {}, // Empty end action
+              this
+          ).withTimeout(.3)
+      )
+    }
+      */
   }
 

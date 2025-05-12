@@ -14,16 +14,19 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Robot;;
+import frc.robot.Robot;
 
 @Logged
 public class DriveSubsystem extends SubsystemBase {
@@ -37,8 +40,6 @@ public class DriveSubsystem extends SubsystemBase {
    // setup closed loop controller
   private final SparkClosedLoopController leftController;
   private final SparkClosedLoopController rightController;
-
- 
 
   //@Logged(name="Differential Drive")
   private final DifferentialDrive drive;
@@ -74,9 +75,13 @@ public class DriveSubsystem extends SubsystemBase {
 
     leftLeaderConfig.apply(globalConfig);
 
+    rightLeaderConfig.inverted(false);
+    leftLeaderConfig.inverted(true);
+
     leftFollowerConfig.apply(globalConfig).follow(leftLeader);
 
     rightFollowerConfig.apply(globalConfig).follow(rightLeader);
+
 
 
 
@@ -115,6 +120,7 @@ public class DriveSubsystem extends SubsystemBase {
 
 
 
+
     resetEncoders();
 
   }
@@ -141,10 +147,13 @@ public class DriveSubsystem extends SubsystemBase {
     ioInfo.leftAppliedVolts = leftLeader.getAppliedOutput();
     ioInfo.leftCurrentAmps = leftLeader.getOutputCurrent();
 
+
+
     ioInfo.rightPositionInMeters = rightLeader.getEncoder().getPosition();
     ioInfo.rightVelocityInMetersPerSec = rightLeader.get();
     ioInfo.rightAppliedVolts = rightLeader.getAppliedOutput();
     ioInfo.rightCurrentAmps = rightLeader.getOutputCurrent();  
+
   }
 
   public void setVelocity(double leftVelocity, double rightVelocity) {
@@ -152,12 +161,6 @@ public class DriveSubsystem extends SubsystemBase {
     rightController.setReference(rightVelocity, ControlType.kVelocity);  
     
   }
-
-  public BooleanSupplier isAtDistance(double desiredDistanceInMeters) {
-    return () -> ((Math.abs(leftLeader.getEncoder().getPosition()) >= desiredDistanceInMeters) || 
-                  (Math.abs(rightLeader.getEncoder().getPosition()) >= desiredDistanceInMeters)); 
-  }
-
 
   public void resetEncoders() {
     
@@ -214,13 +217,32 @@ public class DriveSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run during simulation
   }
 
-  public Command driveFwdInMetersCmd(DriveSubsystem driveSubsystem, DoubleSupplier distanceInMeters) {
+  public Command driveFwdInSecondsCmd(DriveSubsystem driveSubsystem, float seconds) {
     return Commands.startRun(
       this::resetEncoders, 
       () -> this.setVelocity(DriveConstants.walkingSpeedMetersPerSec, DriveConstants.walkingSpeedMetersPerSec), 
       driveSubsystem)
-      .until(this.isAtDistance(distanceInMeters.getAsDouble()))
+      .withTimeout(seconds)
       .andThen(this::stop)
       .withName("Drive/CMD/driveFwd");
   }
+
+
+
+  public Command driveBackInSecondsCmd(DriveSubsystem driveSubsystem, float seconds) {
+    return Commands.startRun(
+      this::resetEncoders, 
+      () -> this.setVelocity(-DriveConstants.walkingSpeedMetersPerSec, -DriveConstants.walkingSpeedMetersPerSec), 
+      driveSubsystem)
+      .withTimeout(seconds)
+      .andThen(this::stop)
+      .withName("Drive/CMD/driveFwd");
+  }
+
+
+
+  public Command invertLeft(boolean inverted) {
+    return Commands.runOnce(() -> leftLeader.setInverted(inverted));
+  }
+
 }

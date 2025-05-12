@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.logging.errors.ErrorHandler;
@@ -46,8 +47,18 @@ public class Robot extends TimedRobot {
     });
     Epilogue.bind(this);
 
+    GlobalStates.INITIALIZED.enableCommand().schedule();
+    CameraServer.startAutomaticCapture();
+    
+
 
   }
+
+  @Override
+public void robotInit() {
+  System.out.println("robotInit");
+    GlobalStates.INITIALIZED.enableCommand().schedule();
+}
 
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
@@ -78,6 +89,7 @@ public class Robot extends TimedRobot {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
+    m_robotContainer.driveSubsystem.invertLeft(true).schedule();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
@@ -96,6 +108,9 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    m_robotContainer.driveSubsystem.invertLeft(false).schedule();
+    
   }
 
   /** This function is called periodically during operator control. */
